@@ -38,9 +38,10 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     
     logger.info(f'Now processing {basefilename}')
     iq = get_iq_object(source_fullfilename)
-    logger.info('Plotting into a png file...')
+    logger.info('Reading file...')
     iq.read(nframes=nframes, lframes=lframes)
     iq.method = 'fftw'
+    logger.info('Do FFT...')
     xx, yy, zz = iq.get_power_spectrogram(lframes=lframes, nframes=nframes, sparse=True)
     xx, yy, zz = get_averaged_spectrogram(xx, yy, zz, every = n_avg)
 
@@ -50,13 +51,14 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
 
     plt.rc('font', **font)
 
+    logger.info('Write to PNG...')
     plot_spectrogram(xx, yy, zz, cen=iq.center,
                      filename=outpath+basefilename, title=basefilename)
 
     plot_spectrogram(xx, yy, zz, cen=iq.center,
                      filename=outpath+basefilename+'_zoom', title=basefilename+'_zoom', span=200000)
     
-    logger.info('Creating a NPZ file...')
+    logger.info('Write to NPZ...')
     np.savez(outpath + basefilename + '.npz', xx + iq.center, yy, zz)
     
     logger.info('Copying files...')
