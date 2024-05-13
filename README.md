@@ -8,8 +8,8 @@ You can read it like this (you may need to flatten one array)
 
 ```python
 data = np.load('filename.npz')
-xx, yy, zz, center = data['arr_0'], data['arr_1'], data['arr_2'], data['arr_3']
+xx, yy, zz, center = data['arr_0'], data['arr_1'], data['arr_2']
 ```
 
-note that you can `flaten` arrays before use, or just make a `float()` cast.
+note that you can `flatten` arrays before use, or just make a `float()` cast if it is just a number.
 

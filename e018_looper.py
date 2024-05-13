@@ -52,11 +52,13 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
                      filename=outpath+basefilename, title=basefilename)
     
     logger.info('Creating a NPZ file...')
-    np.savez(outpath + basefilename + '.npz', xx, yy, zz, iq.center)
+    np.savez(outpath + basefilename + '.npz', xx + iq.center, yy, zz)
     
     # then make copies
     shutil.copy(source_fullfilename, outpath)
     shutil.copy(outpath+basefilename+'.png', wwwpath + static_png_name)
+    
+    
 
 def put_into_logfile(file, logfilename):
     """
