@@ -36,7 +36,7 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     what to do with each file
     """
     
-    logger.info(f'\nProcessing {basefilename}')
+    logger.info(f'Now processing {basefilename}')
     iq = get_iq_object(source_fullfilename)
     logger.info('Plotting into a png file...')
     iq.read(nframes=nframes, lframes=lframes)
