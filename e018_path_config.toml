@@ -1,0 +1,15 @@
+# Path file settings for E018 looper
+
+[settings]
+
+n_avg = 1
+sleeptime = 3
+static_png_name = "rsa01.png"
+
+[paths]
+
+syncfile = ""
+logfile = ""
+lustrepath = ""
+outpath = ""
+wwwpath = ""
