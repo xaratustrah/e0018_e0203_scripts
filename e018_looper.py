@@ -18,14 +18,18 @@ from iqtools import *
 
 
 def process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_name, n_avg, lframes, nframes):
-        with open(syncfile) as sf:
-            for line in sf.readlines():
-                basefilename = line.split()[0].split('/')[-1]
-                source_fullfilename = lustrepath + basefilename
-                if not already_processed(source_fullfilename, logfile):
-                    process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
-                    put_into_logfile(source_fullfilename, logfile)
-                    #copy_files(fullfilename, wwwpath)
+        try:
+            with open(syncfile) as sf:
+                for line in sf.readlines():
+                    basefilename = line.split()[0].split('/')[-1]
+                    source_fullfilename = lustrepath + basefilename
+                    if not already_processed(source_fullfilename, logfile):
+                        process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
+                        put_into_logfile(source_fullfilename, logfile)
+                        #copy_files(fullfilename, wwwpath)
+        except:
+            logger.error('No sync file list on the specified location. Aborting.')
+            exit()
 
 
 def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes):
@@ -50,6 +54,9 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
 
     plot_spectrogram(xx, yy, zz, cen=iq.center,
                      filename=outpath+basefilename, title=basefilename)
+
+    plot_spectrogram(xx, yy, zz, cen=iq.center,
+                     filename=outpath+basefilename+'_zoom', title=basefilename+'_zoom', span=200000)
     
     logger.info('Creating a NPZ file...')
     np.savez(outpath + basefilename + '.npz', xx + iq.center, yy, zz)
@@ -57,7 +64,7 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     # then make copies
     shutil.copy(source_fullfilename, outpath)
     shutil.copy(outpath+basefilename+'.png', wwwpath + static_png_name)
-    
+    shutil.copy(outpath+basefilename+'_zoom.png', wwwpath + 'zoom_' + static_png_name)
     
 
 def put_into_logfile(file, logfilename):

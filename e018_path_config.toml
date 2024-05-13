@@ -2,6 +2,8 @@
 
 [settings]
 
+lframes = 65536 # 2**16
+nframes = 94
 n_avg = 1
 sleeptime = 3
 static_png_name = "rsa01.png"
