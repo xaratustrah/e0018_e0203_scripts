@@ -36,7 +36,7 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     what to do with each file
     """
     
-    logger.info('Processing ' +  source_fullfilename)
+    logger.info(f'\nProcessing {basefilename}')
     iq = get_iq_object(source_fullfilename)
     logger.info('Plotting into a png file...')
     iq.read(nframes=nframes, lframes=lframes)
@@ -59,10 +59,11 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     logger.info('Creating a NPZ file...')
     np.savez(outpath + basefilename + '.npz', xx + iq.center, yy, zz)
     
-    # then make copies
+    logger.info('Copying files...')
     shutil.copy(source_fullfilename, outpath)
     shutil.copy(outpath+basefilename+'.png', wwwpath + static_png_name)
     shutil.copy(outpath+basefilename+'_zoom.png', wwwpath + 'zoom_' + static_png_name)
+    logger.success(f'Done processing {basefilename}\n\n')
     
 
 def put_into_logfile(file, logfilename):
