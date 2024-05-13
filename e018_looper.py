@@ -24,9 +24,8 @@ def process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_nam
                     basefilename = line.split()[0].split('/')[-1]
                     source_fullfilename = lustrepath + basefilename
                     if not already_processed(source_fullfilename, logfile):
-                        process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
                         put_into_logfile(source_fullfilename, logfile)
-                        #copy_files(fullfilename, wwwpath)
+                        process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
         except:
             logger.error('No sync file list on the specified location. Aborting.')
             exit()
@@ -39,7 +38,6 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     
     logger.info('Processing ' +  source_fullfilename)
     iq = get_iq_object(source_fullfilename)
-    iq.read_samples(1)
     logger.info('Plotting into a png file...')
     iq.read(nframes=nframes, lframes=lframes)
     iq.method = 'fftw'
