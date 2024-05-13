@@ -61,8 +61,8 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     
     logger.info('Copying files...')
     shutil.copy(source_fullfilename, outpath)
-    shutil.copy(outpath+basefilename+'.png', wwwpath + static_png_name)
-    shutil.copy(outpath+basefilename+'_zoom.png', wwwpath + 'zoom_' + static_png_name)
+    shutil.copy(outpath + basefilename + '.png', wwwpath + static_png_name)
+    shutil.copy(outpath + basefilename + '_zoom.png', wwwpath + 'zoom_' + static_png_name)
     logger.success(f'Done processing {basefilename}\n\n')
     
 
@@ -159,12 +159,11 @@ def main():
 
 
     logger.info('Processing files from sync file list: ', syncfile)
-    logger.info('Lustre path will be: ' + lustrepath)
-    logger.info('Out path will be: ' +  outpath)
-    logger.info('WWW path will be: ' +  wwwpath)
-    logger.info('Log file will be: ' +  logfile)
+    logger.info('Log file: ' +  logfile)
+    logger.info('Taking files from (lustrepath): ' + lustrepath)
+    logger.info('Writing files to (outpath): ' +  outpath)
+    logger.info('Copy files to (wwwpath): ' +  wwwpath)
 
-    
     wwwpath = os.path.join(wwwpath, '')
     outpath = os.path.join(outpath, '')
     lustrepath = os.path.join(lustrepath, '')
