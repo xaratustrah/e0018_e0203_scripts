@@ -17,18 +17,18 @@ import toml
 from iqtools import *
 
 
-def process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_name, n_avg):
+def process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_name, n_avg, lframes, nframes):
         with open(syncfile) as sf:
             for line in sf.readlines():
                 basefilename = line.split()[0].split('/')[-1]
                 source_fullfilename = lustrepath + basefilename
                 if not already_processed(source_fullfilename, logfile):
-                    process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg)
+                    process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
                     put_into_logfile(source_fullfilename, logfile)
                     #copy_files(fullfilename, wwwpath)
 
 
-def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg):
+def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes):
     """
     what to do with each file
     """
@@ -36,7 +36,6 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     logger.info('Processing ' +  source_fullfilename)
     iq = get_iq_object(source_fullfilename)
     iq.read_samples(1)
-    lframes, nframes = 2**16, 94 #2**15, 190 # 2**14, 380 # 2**12, 762
     logger.info('Plotting into a png file...')
     iq.read(nframes=nframes, lframes=lframes)
     iq.method = 'fftw'
@@ -53,10 +52,7 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
                      filename=outpath+basefilename, title=basefilename)
     
     logger.info('Creating a NPZ file...')
-    ## read it like this
-    # data = np.load('filename.npz')
-    # xx, yy, zz = data['arr_0'], data['arr_1'], data['arr_2']
-    np.savez(outpath+basefilename + '.npz', xx, yy, zz)
+    np.savez(outpath + basefilename + '.npz', xx, yy, zz, iq.center)
     
     # then make copies
     shutil.copy(source_fullfilename, outpath)
@@ -125,7 +121,7 @@ def main():
             print(config_dic)
             for key in ['syncfile', 'logfile', 'lustrepath', 'outpath', 'wwwpath']:
                 assert key in config_dic['paths'].keys()
-            for key in ['n_avg', 'sleeptime', 'static_png_name']:
+            for key in ['n_avg', 'sleeptime', 'static_png_name', 'lframes', 'nframes']:
                 assert key in config_dic['settings'].keys()
                 
         except:
@@ -134,6 +130,8 @@ def main():
            
         logger.success("Config file is good.")
 
+        lframes = config_dic['settings']['lframes']
+        nframes = config_dic['settings']['nframes']
         static_png_name = config_dic['settings']['static_png_name']
         n_avg = config_dic['settings']['n_avg']
         sleeptime = config_dic['settings']['sleeptime']
@@ -170,7 +168,7 @@ def main():
             # Make sure there is a trailing slash at the end of the path
 
             # start looping process
-            process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_name, n_avg)
+            process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
             time.sleep(sleeptime)
             logger.info('I am waiting for new files...')
 
