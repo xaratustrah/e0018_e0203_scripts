@@ -63,7 +63,7 @@ def process_loop(syncfile, logfile, lustrepath, queue):
 
 
 def process_each(
-    source_fullfilename, basefilename, outpath, wwwpath, n_avg, nframes
+    source_fullfilename, basefilename, outpath, wwwpath, n_avg, lframes
 ):
     """
     what to do with each file
@@ -75,10 +75,10 @@ def process_each(
         
         iq.read_samples(1)
         
-        lframes = (
-            int(iq.nsamples_total / nframes) - 1
-            if int(iq.nsamples_total / nframes) % 2
-            else int(iq.nsamples_total / nframes)
+        nframes = (
+            int(iq.nsamples_total / lframes) - 1
+            if int(iq.nsamples_total / lframes) % 2
+            else int(iq.nsamples_total / lframes)
         )
         
         iq.read(nframes=nframes, lframes=lframes)
@@ -148,14 +148,14 @@ def already_processed(currentfilename, logfilename):
     return already_processed
 
 
-def worker(queue, outpath, wwwpath, n_avg, lframes, nframes):
+def worker(queue, outpath, wwwpath, n_avg, lframes):
     while True:
         item = queue.get()
         if item is None:  # Sentinel value to end the thread
             break
         source_fullfilename, basefilename = item
         process_each(
-            source_fullfilename, basefilename, outpath, wwwpath, n_avg, nframes
+            source_fullfilename, basefilename, outpath, wwwpath, n_avg, lframes
         )
         queue.task_done()
 
@@ -193,7 +193,7 @@ def main():
             # check structure of calibration file
             for key in ["syncfile", "logfile", "lustrepath", "outpath", "wwwpath"]:
                 assert key in config_dic["paths"].keys()
-            for key in ["n_avg", "sleeptime", "nframes"]:
+            for key in ["n_avg", "sleeptime", "lframes"]:
                 assert key in config_dic["settings"].keys()
 
         except:
@@ -202,7 +202,7 @@ def main():
 
         logger.success("Config file is good.")
 
-        nframes = config_dic["settings"]["nframes"]
+        lframes = config_dic["settings"]["lframes"]
 
         n_avg = config_dic["settings"]["n_avg"]
         sleeptime = config_dic["settings"]["sleeptime"]
@@ -236,7 +236,7 @@ def main():
     threads = []
     for _ in range(number_of_threads):
         t = threading.Thread(
-            target=worker, args=(file_queue, outpath, wwwpath, n_avg, lframes, nframes)
+            target=worker, args=(file_queue, outpath, wwwpath, n_avg, lframes)
         )
         t.start()
         threads.append(t)
