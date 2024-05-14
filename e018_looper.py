@@ -63,8 +63,8 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, n_avg, lfr
     
     logger.info('Copying files...')
     shutil.copy(source_fullfilename, outpath)
-    shutil.copy(outpath + basefilename + '.png', wwwpath + basefilename[:5])
-    shutil.copy(outpath + basefilename + '_zoom.png', wwwpath + 'zoom_' + basefilename[:5])
+    shutil.copy(outpath + basefilename + '.png', wwwpath + basefilename[:5]+'.png')
+    shutil.copy(outpath + basefilename + '_zoom.png', wwwpath + 'zoom_' + basefilename[:5]+'.png')
     logger.success(f'Done processing {basefilename}\n\n')
     
 
