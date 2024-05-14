@@ -20,7 +20,15 @@ from queue import Queue
 from iqtools import *
 
 
-def plot_and_save_spectrogram(xx, yy, zz, filename, span=None):
+def plot_and_save_spectrogram(xx, yy, zz, filename, zzmin=0, zzmax=200, span=None):
+
+    if zzmin >= 0 and zzmax <= 1e6 and zzmin < zzmax:
+        zz = zz / np.max(zz) * 1e6
+        mynorm = Normalize(vmin=zzmin, vmax=zzmax)
+
+    else:
+        # pcolormesh ignores if norm is None
+        mynorm = None
 
     fig, ax = plt.subplots()
     if not span:
@@ -38,6 +46,7 @@ def plot_and_save_spectrogram(xx, yy, zz, filename, span=None):
         extent=[xx[0, 0] * 1e-6, xx[0, -1] * 1e-6, yy[0, 0], yy[-1, 0]],
         cmap="jet",
         aspect="auto",
+        norm=mynorm,
     )
     delta_f = np.round(np.abs(np.abs(xx[0, 1]) - np.abs(xx[0, 0])), 3)
     delta_t = np.round(np.abs(np.abs(yy[1, 0]) - np.abs(yy[0, 0])), 3) * 1e3
@@ -46,7 +55,6 @@ def plot_and_save_spectrogram(xx, yy, zz, filename, span=None):
     plt.title(filename)
     plt.savefig(filename + ".png", dpi=150)
     plt.close()
-
 
 def process_loop(syncfile, logfile, lustrepath, queue):
     try:
@@ -96,7 +104,7 @@ def process_each(
         logger.info("Write to PNG...")
         plot_and_save_spectrogram(xx, yy, zz, outpath + basefilename)
         plot_and_save_spectrogram(
-            axx, ayy, azz, outpath + basefilename + "_zoom", span=1000000
+            axx, ayy, azz, outpath + basefilename + "_zoom", span=50000
         )
 
         logger.info("Write to NPZ...")
