@@ -176,7 +176,7 @@ def main():
             # Make sure there is a trailing slash at the end of the path
 
             # start looping process
-            process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
+            process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, n_avg, lframes, nframes)
             time.sleep(sleeptime)
             logger.info('I am waiting for new files...')
 
