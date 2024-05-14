@@ -177,7 +177,7 @@ def main():
         logger.error("No Config file provided. Aborting...")
         exit()
 
-    logger.info("Processing files from sync file list: ", syncfile)
+    logger.info("Processing files from sync file list: " + syncfile)
     logger.info("Log file: " + logfile)
     logger.info("Taking files from (lustrepath): " + lustrepath)
     logger.info("Writing files to (outpath): " + outpath)
