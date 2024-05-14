@@ -206,6 +206,7 @@ def main():
 
         n_avg = config_dic["settings"]["n_avg"]
         sleeptime = config_dic["settings"]["sleeptime"]
+        number_of_threads = config_dic['settings']['number_of_threads']
 
         syncfile = config_dic["paths"]["syncfile"]
         logfile = config_dic["paths"]["logfile"]
@@ -229,7 +230,6 @@ def main():
 
     logger.info("Let us see if there are new files...")
 
-    number_of_threads = 10
     file_queue = Queue()
 
     # Start worker threads
