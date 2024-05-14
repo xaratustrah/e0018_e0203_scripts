@@ -63,7 +63,7 @@ def process_loop(syncfile, logfile, lustrepath, queue):
 
 
 def process_each(
-    source_fullfilename, basefilename, outpath, wwwpath, n_avg, lframes, nframes
+    source_fullfilename, basefilename, outpath, wwwpath, n_avg, nframes
 ):
     """
     what to do with each file
@@ -72,6 +72,15 @@ def process_each(
         logger.info(f"Now processing {basefilename}")
         iq = get_iq_object(source_fullfilename)
         logger.info("Reading file...")
+        
+        iq.read_samples(1)
+        
+        lframes = (
+            int(iq.nsamples_total / nframes) - 1
+            if int(iq.nsamples_total / nframes) % 2
+            else int(iq.nsamples_total / nframes)
+        )
+        
         iq.read(nframes=nframes, lframes=lframes)
         iq.method = "fftw"
         logger.info("Do FFT...")
@@ -146,7 +155,7 @@ def worker(queue, outpath, wwwpath, n_avg, lframes, nframes):
             break
         source_fullfilename, basefilename = item
         process_each(
-            source_fullfilename, basefilename, outpath, wwwpath, n_avg, lframes, nframes
+            source_fullfilename, basefilename, outpath, wwwpath, n_avg, nframes
         )
         queue.task_done()
 
@@ -194,11 +203,6 @@ def main():
         logger.success("Config file is good.")
 
         nframes = config_dic["settings"]["nframes"]
-        lframes = (
-            int(iq.nsamples_total / nframes) - 1
-            if int(iq.nsamples_total / nframes) % 2
-            else int(iq.nsamples_total / nframes)
-        )
 
         n_avg = config_dic["settings"]["n_avg"]
         sleeptime = config_dic["settings"]["sleeptime"]
