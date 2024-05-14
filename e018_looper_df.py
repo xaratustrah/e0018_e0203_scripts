@@ -223,7 +223,8 @@ def main():
     logger.info("Taking files from (lustrepath): " + lustrepath)
     logger.info("Writing files to (outpath): " + outpath)
     logger.info("Copy files to (wwwpath): " + wwwpath)
-
+    logger.info(f"Working with {number_of_threads} threads.")
+    
     wwwpath = os.path.join(wwwpath, "")
     outpath = os.path.join(outpath, "")
     lustrepath = os.path.join(lustrepath, "")
