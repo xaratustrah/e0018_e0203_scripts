@@ -17,7 +17,7 @@ import toml
 from iqtools import *
 
 
-def process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_name, n_avg, lframes, nframes):
+def process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, n_avg, lframes, nframes):
         try:
             with open(syncfile) as sf:
                 for line in sf.readlines():
@@ -25,13 +25,13 @@ def process_loop(syncfile, logfile, lustrepath, outpath, wwwpath, static_png_nam
                     source_fullfilename = lustrepath + basefilename
                     if not already_processed(source_fullfilename, logfile):
                         put_into_logfile(source_fullfilename, logfile)
-                        process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes)
+                        process_each(source_fullfilename, basefilename, outpath, wwwpath, n_avg, lframes, nframes)
         except:
             logger.error('No sync file list on the specified location. Aborting.')
             exit()
 
 
-def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png_name, n_avg, lframes, nframes):
+def process_each(source_fullfilename, basefilename, outpath, wwwpath, n_avg, lframes, nframes):
     """
     what to do with each file
     """
@@ -63,8 +63,8 @@ def process_each(source_fullfilename, basefilename, outpath, wwwpath, static_png
     
     logger.info('Copying files...')
     shutil.copy(source_fullfilename, outpath)
-    shutil.copy(outpath + basefilename + '.png', wwwpath + static_png_name)
-    shutil.copy(outpath + basefilename + '_zoom.png', wwwpath + 'zoom_' + static_png_name)
+    shutil.copy(outpath + basefilename + '.png', wwwpath + basefilename[:5])
+    shutil.copy(outpath + basefilename + '_zoom.png', wwwpath + 'zoom_' + basefilename[:5])
     logger.success(f'Done processing {basefilename}\n\n')
     
 
@@ -131,7 +131,7 @@ def main():
             print(config_dic)
             for key in ['syncfile', 'logfile', 'lustrepath', 'outpath', 'wwwpath']:
                 assert key in config_dic['paths'].keys()
-            for key in ['n_avg', 'sleeptime', 'static_png_name', 'lframes', 'nframes']:
+            for key in ['n_avg', 'sleeptime', 'lframes', 'nframes']:
                 assert key in config_dic['settings'].keys()
                 
         except:
@@ -142,7 +142,6 @@ def main():
 
         lframes = config_dic['settings']['lframes']
         nframes = config_dic['settings']['nframes']
-        static_png_name = config_dic['settings']['static_png_name']
         n_avg = config_dic['settings']['n_avg']
         sleeptime = config_dic['settings']['sleeptime']
 
