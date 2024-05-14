@@ -36,6 +36,7 @@ def process_loop(
                         lframes,
                         nframes,
                     )
+
     except:
         logger.error("No sync file list on the specified location. Aborting.")
         exit()
