@@ -20,7 +20,7 @@ from queue import Queue
 from iqtools import *
 
 
-def plot_and_save_spectrogram(xx, yy, zz, filename, zzmin=0, zzmax=200, span=None):
+def plot_and_save_spectrogram(xx, yy, zz, filename, zzmin=0, zzmax=1000, span=None):
 
     if zzmin >= 0 and zzmax <= 1e6 and zzmin < zzmax:
         zz = zz / np.max(zz) * 1e6
