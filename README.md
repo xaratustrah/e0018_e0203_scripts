@@ -17,6 +17,11 @@ import multiprocessing
 print("Number of CPU cores:", multiprocessing.cpu_count())
 ```
 
+run the command with:
+
+```bash
+python looper.py --config looper_cfg.toml
+```
 
 #### NPZ file
 You can read it like this (you may need to flatten one array)
