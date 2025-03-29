@@ -1,0 +1,20 @@
+# Config file for the multiprocessing looper script
+
+[paths]
+monitor_dir = "."
+output_dir = "."
+state_file = "./processed_files.pkl"
+
+[processing]
+num_cores = 10
+interval_seconds = 0.5
+file_ready_seconds = 1
+
+[analysis]
+nframes = 700
+lframes = 8192
+navg = 1
+zzmin = 0
+zzmax = 1e6
+mask = false
+dbm = false

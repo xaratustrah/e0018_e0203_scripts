@@ -1,6 +1,21 @@
-# G22-00018_00203 scripts
+# e0018 and e0203 scripts
 
-Script to loop-process the files on the server during the G22-00018 and G22-00203 experiment, and then copy them to different locations:
+Script for multiprocess looping of the files on the server during the G22-00018 and G22-00203 experiment, and then copy the results to different locations.
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+The settings are in a TOML file. In order to know the number of available cores on your system you may:
+
+```python
+import multiprocessing
+print("Number of CPU cores:", multiprocessing.cpu_count())
+```
 
 
 #### NPZ file
