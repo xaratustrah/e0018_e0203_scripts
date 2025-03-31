@@ -1,6 +1,6 @@
 #
 # Multiprocessing looper
-# 
+#
 # (2025) xaratustrah@github
 #
 
@@ -35,7 +35,7 @@ def read_and_verify_settings(toml_file):
                 "state_file",
             ],
             "processing": ["num_cores", "interval_seconds", "file_ready_seconds"],
-            "analysis": ["nframes", "lframes", "navg"],
+            "analysis": ["nframes", "lframes", "navg", "todo"],
         }
 
         # Load the TOML file
@@ -103,9 +103,10 @@ def process_file(filename, settings):
     lframes = settings["analysis"]["lframes"]
     nframes = settings["analysis"]["nframes"]
     monitor_dir = settings["paths"]["monitor_dir"]
-    monitor_dir = os.path.join(monitor_dir, "") 
+    monitor_dir = os.path.join(monitor_dir, "")
     output_dir = settings["paths"]["output_dir"]
     output_dir = os.path.join(output_dir, "")
+    todo = settings["analysis"]["todo"]
 
     start_time = time.time()  # Record start time
 
@@ -113,21 +114,39 @@ def process_file(filename, settings):
     iq = get_iq_object(monitor_dir + filename)
     iq.method = "fftw"
     iq.read(nframes=nframes, lframes=lframes)
-    xx, yy, zz = iq.get_power_spectrogram(nframes=nframes, lframes=lframes)
-    xx, yy, zz = get_averaged_spectrogram(xx, yy, zz, every=navg)
-    plot_spectrogram(
-        xx,
-        yy,
-        zz,
-        cen=iq.center,
-        zzmin=zzmin,
-        zzmax=zzmax,
-        dbm=dbm,
-        mask=mask,
-        filename=output_dir + filename,
-        title=filename,
-    )
-    np.savez(output_dir + filename + ".npz", xx + iq.center, yy, zz)
+
+    if "spectrogram" in todo:
+        xx, yy, zz = iq.get_power_spectrogram(nframes=nframes, lframes=lframes)
+        xx, yy, zz = get_averaged_spectrogram(xx, yy, zz, every=navg)
+        np.savez(output_dir + filename + "_spectrogram.npz", xx + iq.center, yy, zz)
+
+        if "png" in todo:
+            plot_spectrogram(
+                xx,
+                yy,
+                zz,
+                cen=iq.center,
+                zzmin=zzmin,
+                zzmax=zzmax,
+                dbm=dbm,
+                mask=mask,
+                filename=output_dir + filename + '_spectrogram',
+                title=filename,
+            )
+    if "spectrum" in todo:
+        ff, pp, _ = iq.get_fft()
+        np.savez(output_dir + filename + "_spectrum.npz", arr_0=ff + iq.center, arr_1=pp)
+
+        if "png" in todo:
+            plot_spectrum(
+                ff,
+                pp,
+                cen=iq.center,
+                span=None,
+                dbm=dbm,
+                filename=output_dir + filename + '_spectrum',
+                title=filename,
+            )
 
     end_time = time.time()  # Record end time
     elapsed_time = end_time - start_time  # Calculate elapsed time

@@ -13,8 +13,9 @@ file_ready_seconds = 1
 [analysis]
 nframes = 700
 lframes = 8192
-navg = 1
+navg = 2
 zzmin = 0
 zzmax = 1e6
 mask = false
 dbm = false
+todo = ['png', 'spectrum', 'spectrogram'] # choose any of or combination 'png', 'spectrum', 'spectrogram'
