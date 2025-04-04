@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 from loguru import logger
 from tqdm import tqdm
+import sys
 from iqtools import *
 import sys
 
@@ -55,18 +56,41 @@ def main():
         type=str,
         help="Path to the file containing the list of file paths.",
     )
+    
+    parser.add_argument("-t", "--time-cut", type=float, required=False, help="Start time as a float (optional)")
+    
     args = parser.parse_args()
 
     try:
         logger.info("Starting the summation...")
         xx, yy, zz_sum, found_files = process_files(args.file_list)
-        navg = np.shape(xx)[0]
 
+        if args.time_cut is not None:
+            y_idx = (np.abs(yy[:,0] - float(args.time_cut))).argmin()
+            filename_suffix = "_time_cut"
+        else:
+            y_idx = 0
+            filename_suffix = ""
+            
         logger.info("Saving 3D NPZ sum to file...")
-        np.savez("summed_spectrogram.npz", arr_0=xx, arr_1=yy, arr_2=zz_sum)
+        np.savez("summed_spectrogram.npz", arr_0=xx[y_idx:,:], arr_1=yy[y_idx:,:], arr_2=zz_sum[y_idx:,:])
+        
+        logger.info("Plotting the 3D NPZ sum...")
+        
+        slx = slice (int(np.shape(xx[y_idx:,:])[1]/2) - 500, int(np.shape(xx[y_idx:,:])[1]/2) + 500)
+        sly = slice(y_idx, np.shape(yy)[0]) # this one was very tricky until I found it!
+        
+        plot_spectrogram(
+            xx[sly,slx], yy[sly,slx], zz_sum[sly,slx],
+            zzmin=10,
+            zzmax=500,
+            filename="summed_spectrogram" + filename_suffix,
+            title="summed_spectrogram" + filename_suffix,
+        )
 
         logger.info("Creating 2D average...")
-        xx_avg, yy_avg, zz_sum_avg = get_averaged_spectrogram(xx, yy, zz_sum, every=navg)
+        navg = np.shape(zz_sum[y_idx:,:])[0]
+        xx_avg, yy_avg, zz_sum_avg = get_averaged_spectrogram(xx[y_idx:,:], yy[y_idx:,:], zz_sum[y_idx:,:], every=navg)
 
         logger.info("Saving 2D NPZ sum to file...")
         np.savez("summed_spectrum.npz", arr_0=xx_avg.flatten(), arr_1=zz_sum_avg.flatten())
@@ -76,21 +100,9 @@ def main():
             xx_avg.flatten(),
             zz_sum_avg.flatten(),
             dbm=True,
-            filename="summed_spectrum",
-            title="summed_spectrum",
+            filename="summed_spectrum" + filename_suffix,
+            title="summed_spectrum" + filename_suffix,
         )
-
-        logger.info("Plotting the 3D NPZ sum...")
-        slx = slice (int(np.shape(xx)[1]/2) - 500, int(np.shape(xx)[1]/2) + 500)
-        sly = slice(0,np.shape(yy)[0])
-        plot_spectrogram(
-            xx[sly,slx], yy[sly,slx], zz_sum[sly,slx],
-            zzmin=10,
-            zzmax=500,
-            filename="summed_spectrogram",
-            title="summed_spectrogram",
-        )
-
 
         if found_files:
             logger.info(
