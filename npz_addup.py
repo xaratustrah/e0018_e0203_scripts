@@ -73,7 +73,7 @@ def main():
             filename_suffix = ""
             
         logger.info("Saving 3D NPZ sum to file...")
-        np.savez("summed_spectrogram.npz", arr_0=xx[y_idx:,:], arr_1=yy[y_idx:,:], arr_2=zz_sum[y_idx:,:])
+        np.savez(f"summed_spectrogram{filename_suffix}.npz", arr_0=xx[y_idx:,:], arr_1=yy[y_idx:,:], arr_2=zz_sum[y_idx:,:])
         
         logger.info("Plotting the 3D NPZ sum...")
         
@@ -84,8 +84,8 @@ def main():
             xx[sly,slx], yy[sly,slx], zz_sum[sly,slx],
             zzmin=10,
             zzmax=500,
-            filename="summed_spectrogram" + filename_suffix,
-            title="summed_spectrogram" + filename_suffix,
+            filename=f"summed_spectrogram{filename_suffix}",
+            title=f"summed_spectrogram{filename_suffix}",
         )
 
         logger.info("Creating 2D average...")
@@ -93,15 +93,15 @@ def main():
         xx_avg, yy_avg, zz_sum_avg = get_averaged_spectrogram(xx[y_idx:,:], yy[y_idx:,:], zz_sum[y_idx:,:], every=navg)
 
         logger.info("Saving 2D NPZ sum to file...")
-        np.savez("summed_spectrum.npz", arr_0=xx_avg.flatten(), arr_1=zz_sum_avg.flatten())
+        np.savez(f"summed_spectrum{filename_suffix}.npz", arr_0=xx_avg.flatten(), arr_1=zz_sum_avg.flatten())
 
         logger.info("Plotting the 2D NPZ sum...")
         plot_spectrum(
             xx_avg.flatten(),
             zz_sum_avg.flatten(),
             dbm=True,
-            filename="summed_spectrum" + filename_suffix,
-            title="summed_spectrum" + filename_suffix,
+            filename=f"summed_spectrum{filename_suffix}",
+            title=f"summed_spectrum{filename_suffix}"
         )
 
         if found_files:
