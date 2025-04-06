@@ -11,12 +11,16 @@ font = {"weight": "bold", "size": 6}  #'family' : 'normal',
 plt.rc("font", **font)
 
 
-def process_files(file_list):
+def process_files(args):
     """
-    Process the files from the file list, summing up the 'zz' arrays from spectrogram files.
+    Process the files from the file list, determine and apply shifts,
+    then summming up the 'zz' arrays from spectrogram files.
     """
     zz_sum = None
     found_files = False
+    ref_pos = None
+
+    file_list = args.file_list
 
     with open(file_list, "r") as f:
         files = f.read().splitlines()
@@ -29,15 +33,53 @@ def process_files(file_list):
         )
         return zz_sum, False
 
+    # Go over files
     for file in tqdm(spectrogram_files, desc="Processing files"):
         try:
             data = np.load(file)
             xx, yy, zz = data["arr_0"], data["arr_1"], data["arr_2"]
+
+            found_files = True
+
+            # Read time cut parameters
+            if args.time_cut is not None:
+                y_idx = (np.abs(yy[:,0] - float(args.time_cut))).argmin()
+            else:
+                y_idx = 0
+            
+            # Apply slice for tracking
+            sly = slice(y_idx, np.shape(yy)[0]) # this one was very tricky until I found it!
+
+            # Project sliced spectrogram and find maximum
+            proj_spc = np.sum(zz[sly,:], axis=0)
+            max_pwr=np.max(proj_spc)
+            max_bin=np.argmax(proj_spc)
+            
+            if args.pwr_limit is not None:
+                if max_pwr < args.pwr_limit:
+                    if args.verbose is True:
+                        tqdm.write("Skipping file, too low power!")
+                    continue
+           
+            # If shift tracking
+            if args.shift_track:
+                # determine shift
+                if ref_pos is None:
+                    ref_pos = max_bin
+                    shift = 0
+                else:
+                    shift = max_bin - ref_pos
+
+                if args.verbose is True:
+                    tqdm.write(f"Ref. pos: {ref_pos} \tCurr. pos: {max_bin} \tCurr. pwr: {max_pwr} \tShift: {shift}")
+
+                # Apply shift
+                    zz=np.roll(zz, shift=-shift, axis=1)
+
             if zz_sum is None:
                 zz_sum = zz
             else:
                 zz_sum += zz
-            found_files = True
         except Exception as e:
             logger.error(f"Error processing file {file}: {e}")
 
@@ -58,12 +100,27 @@ def main():
     )
     
     parser.add_argument("-t", "--time-cut", type=float, required=False, help="Start time as a float (optional)")
+   
+    parser.add_argument("-s", "--shift-track", action='store_true', required=False, help="Enable shift tracking based on strongest peak in spectrum (optional)")
     
+    parser.add_argument("-l", "--pwr-limit", type=float, required=False, help="Set minimum power required to process file (optional)")
+    
+    parser.add_argument("-v", "--verbose", action='store_true', required=False, help="Print additional information (optional)")
+
     args = parser.parse_args()
 
     try:
+        if args.time_cut is not None:
+            logger.info(f"Applying time cut on t > {args.time_cut} !")
+        if args.shift_track is True:
+            logger.info("Tracking and applying shifts!")
+        if args.pwr_limit is not None:
+            logger.info(f"Enforcing power threshold pwr > {args.pwr_limit} !")
+        if args.verbose is True:
+            logger.info("Verbose mode enabled!")
+
         logger.info("Starting the summation...")
-        xx, yy, zz_sum, found_files = process_files(args.file_list)
+        xx, yy, zz_sum, found_files = process_files(args)
 
         if args.time_cut is not None:
             y_idx = (np.abs(yy[:,0] - float(args.time_cut))).argmin()
@@ -77,13 +134,13 @@ def main():
         
         logger.info("Plotting the 3D NPZ sum...")
         
-        slx = slice (int(np.shape(xx[y_idx:,:])[1]/2) - 500, int(np.shape(xx[y_idx:,:])[1]/2) + 500)
+        slx = slice(int(np.shape(xx[y_idx:,:])[1]/2) - 500, int(np.shape(xx[y_idx:,:])[1]/2) + 500)
         sly = slice(y_idx, np.shape(yy)[0]) # this one was very tricky until I found it!
         
         plot_spectrogram(
             xx[sly,slx], yy[sly,slx], zz_sum[sly,slx],
             zzmin=10,
-            zzmax=500,
+            zzmax=5000,
             filename=f"summed_spectrogram{filename_suffix}",
             title=f"summed_spectrogram{filename_suffix}",
         )
