@@ -71,7 +71,7 @@ def process_files(args):
                     shift = max_bin - ref_pos
 
                 if args.verbose is True:
-                    tqdm.write(f"Ref. pos: {ref_pos} \tCurr. pos: {max_bin} \tCurr. pwr: {max_pwr} \tShift: {shift}")
+                    tqdm.write(f"Ref. pos: {ref_pos} \tCurr. pos: {max_bin} \tCurr. pwr: {max_pwr:.1f} \tShift: {shift}")
 
                 # Apply shift
                     zz=np.roll(zz, shift=-shift, axis=1)
